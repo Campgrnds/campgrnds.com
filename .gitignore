@@ -1,0 +1,7 @@
+.herenow/
+.impeccable/
+.DS_Store
+# Raw image/video generation work (source material, not the site)
+hf-work/
+# Older working copy of the site; publish/ is the source of truth
+campgrnds-site/

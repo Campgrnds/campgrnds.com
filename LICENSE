@@ -1,0 +1,7 @@
+Copyright (c) 2021-2026 Brandon Webster / Campgrnds. All rights reserved.
+
+This repository is shared publicly so people can read the code behind campgrnds.com.
+The text, photographs, video, logos and brand assets may not be reused without written permission.
+
+Third-party code keeps its own license: jQuery (MIT) and the Webflow runtime in
+publish/assets/landing/js/, exported from my Webflow project.
