@@ -139,6 +139,27 @@
       paint();
     };
 
+    // Load an item's image once, shared by every tile that shows it. A failed request is retried with
+    // backoff (a cache-busting query on retries), then again after a pause, so a dropped connection
+    // never leaves a tile blank for good.
+    var loadItem = function (it) {
+      if (it.ready || it.loading || Date.now() < (it.retryAt || 0)) return;
+      it.loading = true;
+      var tries = 0;
+      var go = function () {
+        var im = new Image();
+        im.decoding = "async";
+        var url = tries ? it.src + (it.src.indexOf("?") < 0 ? "?" : "&") + "r=" + tries : it.src;
+        im.onload = function () { it.ready = true; it.loading = false; it.url = url; paint(); };
+        im.onerror = function () {
+          if (++tries < 4) setTimeout(go, 600 * tries * tries);
+          else { it.loading = false; it.retryAt = Date.now() + 8000; }
+        };
+        im.src = url;
+      };
+      go();
+    };
+
     var drawVideo = function (t) {
       var v = t.vid, vw = v.videoWidth, vh = v.videoHeight;
       for (var c = 0; c < t.canvases.length; c++) {
@@ -152,10 +173,11 @@
       for (var i = 0; i < tiles.length; i++) {
         var t = tiles[i], a = mod(t.base - s + L / 2, L) - L / 2; // arc position, + is right of centre
         var on = Math.abs(a) < t.limit;
-        // Fetch a tile's image a little before it comes round into view.
-        if (!t.loaded && Math.abs(a) < t.limit + 25) {
-          t.loaded = true;
-          t.imgs.forEach(function (im) { im.src = t.it.src; });
+        // Fetch a tile's image well before it comes round into view; its strips all get it at once,
+        // already decoded, so a tile never shows half-drawn.
+        if (!t.loaded && Math.abs(a) < t.limit + 45) {
+          if (t.it.ready) { t.loaded = true; t.imgs.forEach(function (im) { im.src = t.it.url; }); }
+          else loadItem(t.it);
         }
         t.el.style.visibility = on ? "visible" : "hidden";
         if (!on) continue;

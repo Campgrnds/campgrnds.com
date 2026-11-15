@@ -5163,7 +5163,7 @@ blockquote {
   min-height: 25vw;
   max-height: 25vw;
   transform-style: preserve-3d;
-  background-image: url("../../img/blur.png");
+  background-image: url("../../img/blur.webp");
   background-position: 100% 80%;
   background-repeat: no-repeat;
   background-size: 1000%;

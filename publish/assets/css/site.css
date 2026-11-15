@@ -702,14 +702,15 @@ html.motion [data-grow] { transform: scale(calc(.88 + .12 * var(--g, 1))); borde
 
 /* ---------- Booking ---------- */
 .booking-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
-.booking { border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink-2); overflow: hidden; position: relative; min-height: 640px; display: grid; }
+.booking { border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink-2); overflow: hidden; position: relative; display: grid; }
+.booking.is-live { min-height: 640px; }
+.booking-req-body { display: grid; gap: 22px; align-content: center; padding-block: clamp(24px, 5vw, 72px); }
+.booking-req-body h2 { max-width: 16ch; }
+.booking-req-body p { color: #d6d9db; max-width: 46ch; line-height: 1.6; }
+.booking-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
 .booking iframe { width: 100%; min-height: 700px; border: 0; display: block; background: var(--ink-2); }
 .booking-ph { display: grid; grid-template-rows: auto 1fr auto; gap: 20px; padding: clamp(20px, 3vw, 36px); }
 .booking-ph header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-content: start; }
-.cal span { aspect-ratio: 1; display: grid; place-items: center; border-radius: 8px; font-family: var(--mono); font-size: .78rem; color: #4e555a; font-variant-numeric: tabular-nums; }
-.cal span.dow { aspect-ratio: auto; padding-bottom: 6px; font-size: .62rem; letter-spacing: .14em; color: var(--mute); }
-.cal span.open { color: var(--paper); border: 1px solid var(--line); }
 .booking-ph .note { border-top: 1px dashed var(--line); padding-top: 16px; font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
 .booking.is-live .booking-ph { display: none; }
 .booking-side { display: grid; gap: 30px; position: sticky; top: 110px; }

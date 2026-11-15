@@ -31,11 +31,19 @@
   if (!reduce && "IntersectionObserver" in window) doc.classList.add("motion");
 
   /* ---------- Images: keep the designed placeholder when a file is missing ---------- */
-  $$(".media img").forEach(function (img) {
-    var drop = function () { img.remove(); };
-    if (img.complete && img.naturalWidth === 0) drop();
-    else img.addEventListener("error", drop, { once: true });
-  });
+  // A failed request is retried twice (with backoff) before the placeholder takes over, so one
+  // dropped connection doesn't blank an image for the whole visit.
+  var retryImage = function (img, giveUp) {
+    var tries = 0, base = (img.getAttribute("src") || "").split("?")[0];
+    var fail = function () {
+      if (!base) return;
+      if (++tries > 2) { giveUp(); return; }
+      setTimeout(function () { img.src = base + "?r=" + tries; }, 700 * tries);
+    };
+    img.addEventListener("error", fail);
+    if (img.complete && img.naturalWidth === 0 && base) fail();
+  };
+  $$(".media img").forEach(function (img) { retryImage(img, function () { img.remove(); }); });
 
   /* ---------- Higgsfield slots: drop files into assets/hf/ and they appear ----------
      <figure class="hf" data-hf="about-hero" data-kind="video">  -> assets/hf/about-hero.mp4 (+ .jpg poster)
@@ -47,7 +55,9 @@
     var showImage = function (src) {
       var im = new Image();
       im.alt = fig.dataset.alt || ""; im.decoding = "async";
+      var tries = 0;
       im.onload = function () { fig.appendChild(im); requestAnimationFrame(function () { fig.classList.add("is-loaded"); }); };
+      im.onerror = function () { if (++tries <= 2) setTimeout(function () { im.src = src + "?r=" + tries; }, 700 * tries); };
       im.src = src;
     };
     if (fig.dataset.src) {
