@@ -135,12 +135,26 @@
   /* ---------- Reveal on view ---------- */
   var revealables = $$("[data-reveal], .split");
   if (doc.classList.contains("motion")) {
+    // A clip reveal starts fully clipped, and IntersectionObserver counts an element's own clip-path,
+    // so it would never report one as visible. Those are watched through their nearest block ancestor.
+    var watched = new Map();
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+        if (!e.isIntersecting) return;
+        (watched.get(e.target) || []).forEach(function (el) { el.classList.add("is-in"); });
+        io.unobserve(e.target);
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
-    revealables.forEach(function (el) { io.observe(el); });
+    revealables.forEach(function (el) {
+      var t = el;
+      if (el.getAttribute("data-reveal") === "clip") {
+        t = el.parentElement;
+        while (t && t !== document.body && /^(inline|contents)$/.test(getComputedStyle(t).display)) t = t.parentElement;
+        if (!t) t = el;
+      }
+      if (!watched.has(t)) { watched.set(t, []); io.observe(t); }
+      watched.get(t).push(el);
+    });
     // Anything already on screen animates in right after first paint.
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
